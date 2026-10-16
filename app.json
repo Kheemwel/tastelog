@@ -7,15 +7,11 @@
     "icon": "./assets/images/icon.png",
     "scheme": "tastelog",
     "userInterfaceStyle": "automatic",
-    "ios": {
-      "icon": "./assets/expo.icon"
-    },
     "android": {
       "package": "com.kheemwel.tastelog",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#87CEEB", // changed: sky blue; replaces the old background image
         "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false
@@ -29,9 +25,9 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
+          "backgroundColor": "#87CEEB", // changed: matches the icon
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "imageWidth": 200 // changed: was 76, sized for the template's small logo
         }
       ],
       "expo-sharing"
