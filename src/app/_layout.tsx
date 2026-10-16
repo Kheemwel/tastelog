@@ -1,6 +1,7 @@
 import { Stack } from "expo-router";
 import { useColorScheme } from "react-native";
 import { MD3DarkTheme, MD3LightTheme, PaperProvider } from "react-native-paper";
+import { EntriesProvider } from "../state/EntriesProvider";
 
 export default function RootLayout() {
   const scheme = useColorScheme();
@@ -8,15 +9,18 @@ export default function RootLayout() {
 
   return (
     <PaperProvider theme={theme}>
-      <Stack
-        screenOptions={{
-          headerStyle: { backgroundColor: theme.colors.surface },
-          headerTintColor: theme.colors.onSurface,
-          contentStyle: { backgroundColor: theme.colors.background },
-        }}
-      >
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      </Stack>
+      <EntriesProvider>
+        <Stack
+          screenOptions={{
+            headerStyle: { backgroundColor: theme.colors.surface },
+            headerTintColor: theme.colors.onSurface,
+            contentStyle: { backgroundColor: theme.colors.background },
+          }}
+        >
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="entry" options={{ presentation: "modal" }} />
+        </Stack>
+      </EntriesProvider>
     </PaperProvider>
   );
 }
