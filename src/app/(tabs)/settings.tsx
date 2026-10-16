@@ -1,6 +1,6 @@
 import { pickBackupText, saveBackupToFolder, shareBackup } from "@/storage/file";
 import { router } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ComponentType } from "react";
 import { Platform, ScrollView, StyleSheet, View } from "react-native";
 import { Button, Dialog, Divider, Portal, Snackbar, Text } from "react-native-paper";
 import { buildExportFile, exportFileName, mergeEntries, parseImport, serializeExport } from "../../lib/importExport";
@@ -10,6 +10,9 @@ import { useEntries } from "../../state/EntriesProvider";
 import { entryStore } from "../../storage";
 
 const isWeb = Platform.OS === "web";
+// Developer tools exist only while developing. In a release build __DEV__ is false, so this is null
+// and the file is not even loaded.
+const DevTools: ComponentType | null = __DEV__ ? require("../../components/DevTools").DevTools : null;
 
 export default function SettingsScreen() {
   const { entries, replaceAll } = useEntries();
@@ -127,6 +130,13 @@ export default function SettingsScreen() {
         <Button mode="outlined" icon="rename-box" onPress={() => router.push("/rename")}>
           Rename a food, place, or tag
         </Button>
+
+        {DevTools && (
+          <>
+            <Divider />
+            <DevTools />
+          </>
+        )}
       </ScrollView>
 
       <Snackbar visible={message !== null} onDismiss={() => setMessage(null)} duration={4000}>
