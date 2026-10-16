@@ -1,30 +1,35 @@
 import { useState } from "react";
-import { View } from "react-native";
-import { Button, HelperText } from "react-native-paper";
+import { StyleSheet, View } from "react-native";
+import { Button, HelperText, IconButton } from "react-native-paper";
 import { DatePickerModal, en, registerTranslation } from "react-native-paper-dates";
 import { toLocalDateString } from "../lib/keys";
 
 registerTranslation("en", en);
 
 type Props = {
-  value: string; // "YYYY-MM-DD"
+  label?: string; // default "Date"
+  value?: string; // "YYYY-MM-DD"; undefined shows "any"
   onChange: (date: string) => void;
+  onClear?: () => void; // when given, a clear button appears once a date is set
   error?: string;
 };
 
-export function DateField({ value, onChange, error }: Props) {
+export function DateField({ label = "Date", value, onChange, onClear, error }: Props) {
   const [open, setOpen] = useState(false);
 
   return (
     <View>
-      <Button mode="outlined" icon="calendar" onPress={() => setOpen(true)}>
-        Date: {value}
-      </Button>
+      <View style={styles.row}>
+        <Button mode="outlined" icon="calendar" onPress={() => setOpen(true)} style={styles.button}>
+          {`${label}: ${value ?? "any"}`}
+        </Button>
+        {onClear && value ? <IconButton icon="close" onPress={onClear} /> : null}
+      </View>
       <DatePickerModal
         locale="en"
         mode="single"
         visible={open}
-        date={new Date(`${value}T00:00:00`)}
+        date={new Date(`${value ?? toLocalDateString(new Date())}T00:00:00`)}
         onDismiss={() => setOpen(false)}
         onConfirm={({ date }) => {
           setOpen(false);
@@ -37,3 +42,8 @@ export function DateField({ value, onChange, error }: Props) {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  row: { flexDirection: "row", alignItems: "center" },
+  button: { flex: 1 },
+});

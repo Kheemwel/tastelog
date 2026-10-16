@@ -11,15 +11,16 @@ type Props = {
   onPick: (name: string) => void;
   exclude?: string[]; // names to hide, e.g. tags already added
   showWhenEmpty?: boolean; // show the most-used names before anything is typed
+  hideExactMatch?: boolean; // default true: hide a name identical to what was typed
 };
 
-export function SuggestionChips({ entries, kind, typed, onPick, exclude = [], showWhenEmpty }: Props) {
+export function SuggestionChips({ entries, kind, typed, onPick, exclude = [], showWhenEmpty, hideExactMatch = true }: Props) {
   const typedKey = matchKey(typed);
   if (typedKey === "" && !showWhenEmpty) return null;
 
   const hidden = new Set(exclude.map(matchKey));
   const items = suggest(entries, kind, typed, 12)
-    .filter((n) => n.key !== typedKey && !hidden.has(n.key))
+    .filter((n) => (!hideExactMatch || n.key !== typedKey) && !hidden.has(n.key))
     .slice(0, 5);
   if (items.length === 0) return null;
 
