@@ -22,7 +22,9 @@ export function NamePicker({ label, kind, value, entries, onChange }: Props) {
       <View style={styles.group}>
         <Text variant="labelLarge">{label}</Text>
         <View style={styles.wrap}>
-          <Chip onClose={() => onChange(undefined)}>{value}</Chip>
+          <Chip onClose={() => onChange(undefined)} closeIconAccessibilityLabel={`Clear ${label.toLowerCase()}`}>
+            {value}
+          </Chip>
         </View>
       </View>
     );

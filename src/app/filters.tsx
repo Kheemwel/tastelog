@@ -80,6 +80,7 @@ export default function FiltersScreen() {
               mode={draft.ratingMin === n ? "flat" : "outlined"}
               selected={draft.ratingMin === n}
               showSelectedCheck={false}
+              accessibilityLabel={`Lowest rating ${n}`}
               onPress={() => pickMin(n)}
             >
               {String(n)}
@@ -99,6 +100,7 @@ export default function FiltersScreen() {
               mode={draft.ratingMax === n ? "flat" : "outlined"}
               selected={draft.ratingMax === n}
               showSelectedCheck={false}
+              accessibilityLabel={`Highest rating ${n}`}
               onPress={() => pickMax(n)}
             >
               {String(n)}

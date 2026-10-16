@@ -57,7 +57,7 @@ export default function JournalScreen() {
         }
       />
 
-      <FAB icon="plus" style={styles.fab} onPress={() => router.push("/entry")} />
+      <FAB icon="plus" accessibilityLabel="Add entry" style={styles.fab} onPress={() => router.push("/entry")} />
     </View>
   );
 }

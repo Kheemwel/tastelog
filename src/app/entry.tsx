@@ -116,7 +116,14 @@ function EntryForm({ initial }: { initial?: Entry }) {
         </Text>
         <View style={styles.wrap}>
           {RATINGS.map((n) => (
-            <Chip key={n} mode={rating === n ? "flat" : "outlined"} selected={rating === n} showSelectedCheck={false} onPress={() => setRating(n)}>
+            <Chip
+              key={n}
+              mode={rating === n ? "flat" : "outlined"}
+              selected={rating === n}
+              showSelectedCheck={false}
+              accessibilityLabel={`Rating ${n} out of 10`}
+              onPress={() => setRating(n)}
+            >
               {String(n)}
             </Chip>
           ))}
@@ -154,12 +161,12 @@ function EntryForm({ initial }: { initial?: Entry }) {
           onChangeText={setTagText}
           onSubmitEditing={() => addTag(tagText)}
           returnKeyType="done"
-          right={<TextInput.Icon icon="plus" onPress={() => addTag(tagText)} />}
+          right={<TextInput.Icon icon="plus" accessibilityLabel="Add tag" onPress={() => addTag(tagText)} />}
         />
         {tags.length > 0 && (
           <View style={styles.wrap}>
             {tags.map((t) => (
-              <Chip key={t} onClose={() => setTags(tags.filter((x) => x !== t))}>
+              <Chip key={t} closeIconAccessibilityLabel={`Remove tag ${t}`} onClose={() => setTags(tags.filter((x) => x !== t))}>
                 {t}
               </Chip>
             ))}

@@ -23,7 +23,7 @@ export function DateField({ label = "Date", value, onChange, onClear, error }: P
         <Button mode="outlined" icon="calendar" onPress={() => setOpen(true)} style={styles.button}>
           {`${label}: ${value ?? "any"}`}
         </Button>
-        {onClear && value ? <IconButton icon="close" onPress={onClear} /> : null}
+        {onClear && value ? <IconButton icon="close" accessibilityLabel={`Clear ${label.toLowerCase()} date`} onPress={onClear} /> : null}
       </View>
       <DatePickerModal
         locale="en"
