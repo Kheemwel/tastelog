@@ -1,13 +1,12 @@
 import { router } from "expo-router";
 import { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { Button, Chip, HelperText, Text, TextInput } from "react-native-paper";
+import { Button, Chip, HelperText, Text } from "react-native-paper";
 import { DateField } from "../components/DateField";
-import { SuggestionChips } from "../components/SuggestionChips";
+import { NamePicker } from "../components/NamePicker";
 import { MOODS, type MoodKey } from "../lib/moods";
-import type { NameKind } from "../lib/names";
 import { NO_FILTERS, type Filters } from "../lib/query";
-import { RATING_MAX, RATING_MIN, type Entry } from "../lib/types";
+import { RATING_MAX, RATING_MIN } from "../lib/types";
 import { useEntries } from "../state/EntriesProvider";
 import { useFilters } from "../state/FiltersProvider";
 
@@ -123,52 +122,6 @@ export default function FiltersScreen() {
         Clear all
       </Button>
     </ScrollView>
-  );
-}
-
-// Picks one existing name. Filters match whole names, so you choose from the suggestions
-// instead of typing free text that would match nothing.
-function NamePicker({
-  label,
-  kind,
-  value,
-  entries,
-  onChange,
-}: {
-  label: string;
-  kind: NameKind;
-  value: string | undefined;
-  entries: Entry[];
-  onChange: (name: string | undefined) => void;
-}) {
-  const [typed, setTyped] = useState("");
-
-  if (value) {
-    return (
-      <View style={styles.group}>
-        <Text variant="labelLarge">{label}</Text>
-        <View style={styles.wrap}>
-          <Chip onClose={() => onChange(undefined)}>{value}</Chip>
-        </View>
-      </View>
-    );
-  }
-
-  return (
-    <View style={styles.group}>
-      <TextInput mode="outlined" label={`${label} (type to find, then tap a name)`} value={typed} onChangeText={setTyped} />
-      <SuggestionChips
-        entries={entries}
-        kind={kind}
-        typed={typed}
-        showWhenEmpty
-        hideExactMatch={false}
-        onPick={(name) => {
-          onChange(name);
-          setTyped("");
-        }}
-      />
-    </View>
   );
 }
 

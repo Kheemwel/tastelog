@@ -22,6 +22,7 @@ export default function RootLayout() {
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen name="entry" options={{ presentation: "modal" }} />
             <Stack.Screen name="filters" options={{ presentation: "modal", title: "Filters" }} />
+            <Stack.Screen name="rename" options={{ presentation: "modal", title: "Rename" }} />
           </Stack>
         </FiltersProvider>
       </EntriesProvider>
