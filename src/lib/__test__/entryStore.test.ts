@@ -14,6 +14,7 @@ const memory = (initial: Record<string, string> = {}) => {
       data.set(k, v);
     },
     removeItem: async (k) => void data.delete(k),
+    getAllKeys: async () => [...data.keys()],
   };
   return { kv, data };
 };
@@ -81,5 +82,24 @@ describe("createEntryStore", () => {
     expect(backups[0][1]).toBe("{not json");
     await store.upsert(entry("a"));
     expect((await store.getAll()).length).toBe(1);
+  });
+
+  it("clearAll deletes everything Tastelog stored, and nothing else", async () => {
+    const { kv, data } = memory({ "other:key": "keep", "tastelog:data:corrupt:1": "old" });
+    const store = createEntryStore(kv);
+    await store.upsert(entry("a"));
+    await store.setLastExportedAt("2026-10-14T03:00:00.000Z");
+    await store.clearAll();
+    expect(await store.getAll()).toEqual([]);
+    expect(await store.getLastExportedAt()).toBeNull();
+    expect([...data.keys()]).toEqual(["other:key"]);
+  });
+
+  it("works normally after clearAll", async () => {
+    const store = createEntryStore(memory().kv);
+    await store.upsert(entry("a"));
+    await store.clearAll();
+    await store.upsert(entry("b"));
+    expect((await store.getAll()).map((e) => e.id)).toEqual(["b"]);
   });
 });

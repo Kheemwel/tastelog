@@ -9,6 +9,7 @@ type EntriesContextValue = {
   saveEntry: (entry: Entry) => Promise<void>; // add or update (by id)
   deleteEntry: (id: string) => Promise<void>;
   replaceAll: (entries: Entry[]) => Promise<void>; // for import and rename
+  clearAll: () => Promise<void>; // deletes everything this app stored
 };
 
 const EntriesContext = createContext<EntriesContextValue | null>(null);
@@ -53,7 +54,12 @@ export function EntriesProvider({ children }: { children: ReactNode }) {
     setEntries(next);
   };
 
-  return <EntriesContext.Provider value={{ entries, loading, error, saveEntry, deleteEntry, replaceAll }}>{children}</EntriesContext.Provider>;
+  const clearAll = async () => {
+    await entryStore.clearAll();
+    setEntries([]);
+  };
+
+  return <EntriesContext.Provider value={{ entries, loading, error, saveEntry, deleteEntry, replaceAll, clearAll }}>{children}</EntriesContext.Provider>;
 }
 
 export function useEntries(): EntriesContextValue {

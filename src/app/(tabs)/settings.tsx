@@ -1,12 +1,14 @@
+import { NO_FILTERS } from "@/lib/query";
 import { pickBackupText, saveBackupToFolder, shareBackup } from "@/storage/file";
 import { router } from "expo-router";
 import { useEffect, useState, type ComponentType } from "react";
 import { Platform, ScrollView, StyleSheet, View } from "react-native";
-import { Button, Dialog, Divider, Portal, Snackbar, Text } from "react-native-paper";
+import { Button, Dialog, Divider, Portal, Snackbar, Text, TextInput, useTheme } from "react-native-paper";
 import { buildExportFile, exportFileName, mergeEntries, parseImport, serializeExport } from "../../lib/importExport";
 import { toLocalDateString } from "../../lib/keys";
 import type { Entry } from "../../lib/types";
 import { useEntries } from "../../state/EntriesProvider";
+import { useFilters } from "../../state/FiltersProvider";
 import { entryStore } from "../../storage";
 
 const isWeb = Platform.OS === "web";
@@ -15,13 +17,17 @@ const isWeb = Platform.OS === "web";
 const DevTools: ComponentType | null = __DEV__ ? require("../../components/DevTools").DevTools : null;
 
 export default function SettingsScreen() {
-  const { entries, replaceAll } = useEntries();
+  const theme = useTheme();
+  const { entries, replaceAll, clearAll } = useEntries();
+  const { setFilters } = useFilters();
   const [lastExported, setLastExported] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [problem, setProblem] = useState<string | null>(null); // why an import was rejected
   const [pending, setPending] = useState<Entry[] | null>(null); // validated entries waiting for a choice
   const [confirmReplace, setConfirmReplace] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleteText, setDeleteText] = useState("");
 
   useEffect(() => {
     entryStore.getLastExportedAt().then(setLastExported, () => {});
@@ -99,6 +105,26 @@ export default function SettingsScreen() {
     }
   };
 
+  const closeDelete = () => {
+    setConfirmDelete(false);
+    setDeleteText("");
+  };
+
+  const doDelete = async () => {
+    closeDelete();
+    setBusy(true);
+    try {
+      await clearAll();
+      setLastExported(null);
+      setFilters(NO_FILTERS);
+      setMessage("All data deleted.");
+    } catch {
+      setMessage("Could not delete the data. Please try again.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const preview = pending ? mergeEntries(entries, pending) : null;
 
   return (
@@ -131,6 +157,20 @@ export default function SettingsScreen() {
           Rename a food, place, or tag
         </Button>
 
+        <Divider />
+
+        <Text variant="titleMedium">Delete data</Text>
+        <Text>Permanently removes every entry from this device. Export a backup first if you might want them back.</Text>
+        <Button
+          mode="outlined"
+          icon="delete-forever"
+          textColor={theme.colors.error}
+          onPress={() => setConfirmDelete(true)}
+          disabled={busy || (entries.length === 0 && lastExported === null)}
+        >
+          Delete all data
+        </Button>
+
         {DevTools && (
           <>
             <Divider />
@@ -144,6 +184,20 @@ export default function SettingsScreen() {
       </Snackbar>
 
       <Portal>
+        <Dialog visible={confirmDelete} onDismiss={closeDelete}>
+          <Dialog.Title>Delete all data?</Dialog.Title>
+          <Dialog.Content style={{ gap: 12 }}>
+            <Text>{`This permanently deletes your ${entries.length} entries from this device. It cannot be undone.`}</Text>
+            <Text>Type DELETE to confirm.</Text>
+            <TextInput mode="outlined" value={deleteText} onChangeText={setDeleteText} autoCapitalize="characters" autoCorrect={false} />
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={closeDelete}>Cancel</Button>
+            <Button onPress={doDelete} disabled={deleteText.trim().toLowerCase() !== "delete"} textColor={theme.colors.error}>
+              Delete
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
         <Dialog visible={problem !== null} onDismiss={() => setProblem(null)}>
           <Dialog.Title>Could not import</Dialog.Title>
           <Dialog.Content>
@@ -153,7 +207,6 @@ export default function SettingsScreen() {
             <Button onPress={() => setProblem(null)}>OK</Button>
           </Dialog.Actions>
         </Dialog>
-
         <Dialog visible={pending !== null && !confirmReplace} onDismiss={closeImport}>
           <Dialog.Title>Import this file?</Dialog.Title>
           <Dialog.Content>
@@ -169,7 +222,6 @@ export default function SettingsScreen() {
             <Button onPress={doMerge}>Merge</Button>
           </Dialog.Actions>
         </Dialog>
-
         <Dialog visible={pending !== null && confirmReplace} onDismiss={closeImport}>
           <Dialog.Title>Replace everything?</Dialog.Title>
           <Dialog.Content>

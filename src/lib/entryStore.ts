@@ -7,6 +7,8 @@ export interface EntryStore {
   replaceAll(entries: Entry[]): Promise<void>;
   getLastExportedAt(): Promise<string | null>;
   setLastExportedAt(iso: string): Promise<void>;
+  /** Deletes everything Tastelog stored: entries, last-exported time, and any unreadable-data backups. */
+  clearAll(): Promise<void>;
 }
 
 /** The only thing the store needs from a storage engine (AsyncStorage fits this). */
@@ -14,8 +16,10 @@ export type KeyValueStorage = {
   getItem(key: string): Promise<string | null>;
   setItem(key: string, value: string): Promise<void>;
   removeItem(key: string): Promise<void>;
+  getAllKeys(): Promise<readonly string[]>;
 };
 
+const KEY_PREFIX = "tastelog:"; // every key we write starts with this
 const DATA_KEY = "tastelog:data";
 const LAST_EXPORT_KEY = "tastelog:lastExportedAt";
 const STORAGE_VERSION = 1;
@@ -67,5 +71,12 @@ export function createEntryStore(kv: KeyValueStorage): EntryStore {
     replaceAll: (entries) => enqueue(() => write(entries)),
     getLastExportedAt: () => enqueue(() => kv.getItem(LAST_EXPORT_KEY)),
     setLastExportedAt: (iso) => enqueue(() => kv.setItem(LAST_EXPORT_KEY, iso)),
+    clearAll: () =>
+      enqueue(async () => {
+        const keys = await kv.getAllKeys();
+        for (const key of keys) {
+          if (key.startsWith(KEY_PREFIX)) await kv.removeItem(key);
+        }
+      }),
   };
 }
