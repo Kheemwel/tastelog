@@ -119,7 +119,9 @@ The app id is `com.kheemwel.tastelog`. EAS stores the signing key, so keep build
 npx expo export --platform web
 ```
 
-This writes a static site to `dist/`, with one HTML file per screen, which any static host can serve. For Netlify, add a `netlify.toml`:
+The app sets `web.output` to `"single"` in `app.json`, so the export is a single-page app: one `index.html` plus the JavaScript, written to `dist/`. Any static host can serve it, as long as every address falls back to `index.html`. (The default `static` output pre-draws each screen as HTML at build time, always in the light theme, and the browser keeps those pre-drawn colors on first load, so dark mode looked wrong. Single-page output avoids that.)
+
+For Netlify, add a `netlify.toml`:
 
 ```toml
 [build]
@@ -128,9 +130,14 @@ This writes a static site to `dist/`, with one HTML file per screen, which any s
 
 [build.environment]
   NODE_VERSION = "22"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
 ```
 
-If a direct link to a screen returns a 404, set `web.output` to `"single"` in `app.json` and add a catch-all redirect to `/index.html`.
+New projects on Netlify's Free plan show a "Powered by Netlify" badge by default. It can be turned off under Project configuration, General, Powered by Netlify badge.
 
 ## Theme
 

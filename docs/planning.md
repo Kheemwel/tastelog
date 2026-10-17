@@ -182,7 +182,7 @@ Run `npm test`. The unit tests cover everything with logic: match keys and dates
 
 - **Android:** built in the cloud with EAS Build as a release APK (see `eas.json` for the profiles). EAS holds the signing key. Keep using the same project so future builds are signed with the same key; a build with a different key cannot update the installed app in place, and uninstalling deletes the data.
 - **Development build:** for checking native behavior without a slow release build each time, build a development client once (`developmentClient: true`) and run `npx expo start --dev-client`. JavaScript changes then reload instantly.
-- **Web:** `npx expo export --platform web` creates a static site in `dist/` (one HTML file per route). It can be hosted on any static host. The documented setup is Netlify from GitHub with a `netlify.toml` (build command `npx expo export --platform web`, publish directory `dist`, `NODE_VERSION = "22"`). If a direct link to a screen gives a 404, set `web.output` to `single` and add a catch-all redirect to `/index.html`.
+- **Web:** `web.output` is `"single"` in `app.json`, so `npx expo export --platform web` writes a single-page app to `dist/` (one `index.html` plus the JavaScript). It can be hosted on any static host that falls back to `index.html` for every address. The documented setup is Netlify from GitHub with a `netlify.toml`: build command `npx expo export --platform web`, publish directory `dist`, `NODE_VERSION = "22"`, and a catch-all redirect from `/*` to `/index.html` with status 200. New projects on Netlify's Free plan show a "Powered by Netlify" badge by default; it can be turned off under Project configuration, General.
 - **App config:** name Tastelog, package `com.kheemwel.tastelog` (permanent once published), sky-blue adaptive icon background, a themed monochrome icon (Android 13 and newer), a splash with a sky-blue background, and a favicon. The iOS icon entry was removed.
 
 ## 11. Lessons from testing
@@ -193,6 +193,7 @@ Run `npm test`. The unit tests cover everything with logic: match keys and dates
 - **Dates:** the UTC date bug was found early and fixed with a local-date helper.
 - **Icons:** Paper's icons need `@expo/vector-icons`, otherwise they show as boxes and an error.
 - **The Android share sheet** does not list file managers. That is normal, which is why "Save backup to device" exists next to "Share".
+- **Static web output breaks dark mode.** With `web.output: "static"`, every screen is pre-drawn as HTML at build time, where there is no browser and the theme is always light. On load, React reuses that HTML and does not correct style differences, so the pre-drawn Journal page and tab bar stayed light on a dark PC, while screens opened later (Analytics, Settings) were drawn fresh and came out dark. Reloading brought the wrong colors back even though emulating the media feature in DevTools looked fine. The fix was `web.output: "single"`. Pre-drawing also risks baking other build-time values (such as today's date) into the page, and a private offline journal gains nothing from it.
 
 ## 12. Changes from the original plan
 
@@ -204,6 +205,7 @@ Run `npm test`. The unit tests cover everything with logic: match keys and dates
 - **Moods:** 11 final moods (satisfied and calm were replaced by comforted, disappointed, and disgusted were added).
 - **Layout:** the SDK 57 template keeps code in `src/`.
 - **Rating:** 0 to 10 instead of stars.
+- **Web output:** `single` (single-page app) instead of `static`, to fix dark mode on first load.
 
 ## 13. Known limitations and open items
 
@@ -215,10 +217,11 @@ Run `npm test`. The unit tests cover everything with logic: match keys and dates
 - There is no warning when leaving the entry form with unsaved changes.
 - The themed monochrome icon only appears on Android 13 and newer.
 - No iOS build.
+- Netlify's Free plan adds a "Powered by Netlify" badge to new projects by default (turn it off in the project's General settings). Visitors can also hide it for themselves, which only affects their own browser.
 
 ## 14. Release checklist
 
-Reported by the owner: a release APK built with EAS installs, the features work, and the status bar is correct on the second build.
+Reported by the owner: a release APK built with EAS installs, the features work, the status bar is correct on the second build, and the web version is deployed on Netlify with dark and light mode correct after switching to single-page output.
 
 Not individually confirmed yet:
 
@@ -226,7 +229,7 @@ Not individually confirmed yet:
 - [ ] A deliberately broken backup file is rejected and changes nothing
 - [ ] Large journal: 3000 sample entries generated in a development build, exported, imported into the release app, and checked for scrolling, search, and charts
 - [ ] The Developer tools panel is absent from Settings in the release build
-- [ ] Web site deployed, entries save and survive a refresh, direct links to screens load, export and import work
+- [ ] On the live site: entries survive a refresh, direct links to screens (for example `/settings`) load, and export and import work
 - [ ] Release tagged in Git (for example `v1.0.0`)
 
 ## 15. If it is ever touched again
