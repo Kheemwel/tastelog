@@ -1,5 +1,6 @@
 import { darkTheme, lightTheme } from "@/theme";
 import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 import { useColorScheme } from "react-native";
 import { PaperProvider } from "react-native-paper";
 import { EntriesProvider } from "../state/EntriesProvider";
@@ -11,6 +12,7 @@ export default function RootLayout() {
 
   return (
     <PaperProvider theme={theme}>
+      <StatusBar style="auto" />
       <EntriesProvider>
         <FiltersProvider>
           <Stack
