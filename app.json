@@ -10,7 +10,7 @@
     "android": {
       "package": "com.kheemwel.tastelog",
       "adaptiveIcon": {
-        "backgroundColor": "#87CEEB", // changed: sky blue; replaces the old background image
+        "backgroundColor": "#87CEEB",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
@@ -25,9 +25,9 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#87CEEB", // changed: matches the icon
+          "backgroundColor": "#87CEEB",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200 // changed: was 76, sized for the template's small logo
+          "imageWidth": 200
         }
       ],
       "expo-sharing"
@@ -35,6 +35,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "a85a629f-ddb4-4aab-b699-d5e955eb22c1"
+      }
     }
   }
 }
